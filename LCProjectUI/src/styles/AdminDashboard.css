@@ -1,0 +1,36 @@
+/* AdminDashboard.css */
+
+.container-fluid {
+    background-color: #f0f8ff; /* Light blue background */
+  }
+  
+  header {
+    background-color: white;
+    color: #007bff; /* Bootstrap primary color */
+  }
+  
+  footer {
+    background-color: #343a40; /* Bootstrap secondary color */
+    color: white;
+  }
+  
+  .table {
+    margin-bottom: 0;
+  }
+  
+  .btn-sm {
+    font-size: 0.875rem; /* Adjust button size */
+  }
+  
+  .btn-warning {
+    margin-right: 0.5rem; /* Space between Edit and Delete buttons */
+  }
+  
+  .modal-content {
+    padding: 1rem;
+  }
+  
+  .form-control {
+    margin-bottom: 0.5rem;
+  }
+  
