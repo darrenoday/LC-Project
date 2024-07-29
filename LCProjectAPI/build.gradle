@@ -29,6 +29,8 @@ dependencies {
 	implementation group: 'org.apache.tika', name: 'tika-core', version: '1.4'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'org.springframework.security:spring-security-crypto:5.6.1' // Replace with the latest version
+
 }
 
 tasks.named('test') {

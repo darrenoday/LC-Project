@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/EventDetails.css';
 import { Link } from 'react-router-dom';
 
 const EventDetails = () => {
-    const [data, setData] = useState([]); // State to store fetched event data
-    const [filteredData, setFilteredData] = useState([]); // State to store filtered event data
-    const [error, setError] = useState(null); // State to handle errors during data fetching
-    const [searchTerm, setSearchTerm] = useState(''); // State to manage search term for event filtering
-    const [filters, setFilters] = useState({ // State to manage various filters
+    const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({
         category: '',
         startDate: '',
         endDate: '',
@@ -18,40 +17,36 @@ const EventDetails = () => {
         maxPrice: ''
     });
 
-    // Fetch data from API on initial component mount
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Function to fetch event data from API
     const fetchData = () => {
         axios.get('http://localhost:8080/api/events')
             .then(res => {
-                console.log('Fetched data:', res.data); // Log the fetched data
-                setData(res.data); // Set fetched data to state
-                setFilteredData(res.data); // Initially set filteredData to all data
+                console.log('Fetched data:', res.data);
+                setData(res.data);
+                setFilteredData(res.data);
+                setError(null);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                setError('Error fetching data. Please try again later.'); // Handle fetch error
+                setError('Error fetching data. Please try again later.');
             });
     };
 
-    // Effect to apply filters whenever filters state changes
     useEffect(() => {
-        applyFilters();
-    }, [filters]);
+        applyFiltersAndSearch();
+    }, [filters, searchTerm, data]);
 
-    // Function to apply filters to event data
-    const applyFilters = () => {
-        let filtered = [...data]; // Create a copy of original data array
+    const applyFiltersAndSearch = () => {
+        let filtered = [...data];
 
-        // Apply category filter
+        // Apply filters
         if (filters.category) {
-            filtered = filtered.filter(event => event.eventCategory === filters.category);
+            filtered = filtered.filter(event => event.eventCategory.toLowerCase() === filters.category.toLowerCase());
         }
 
-        // Apply date range filter (assuming events have a date field)
         if (filters.startDate && filters.endDate) {
             filtered = filtered.filter(event =>
                 new Date(event.eventDate) >= new Date(filters.startDate) &&
@@ -59,12 +54,10 @@ const EventDetails = () => {
             );
         }
 
-        // Apply location filter
         if (filters.location) {
             filtered = filtered.filter(event => event.eventLocation.toLowerCase().includes(filters.location.toLowerCase()));
         }
 
-        // Apply price range filter (assuming events have a price field)
         if (filters.minPrice && filters.maxPrice) {
             filtered = filtered.filter(event =>
                 event.eventPrice >= parseFloat(filters.minPrice) &&
@@ -72,31 +65,24 @@ const EventDetails = () => {
             );
         }
 
-        setFilteredData(filtered); // Update filteredData state with filtered array
-    };
-
-    // Handler function for search input change
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value); // Update search term state
-    };
-
-    // Effect to filter data based on search term
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredData(data); // Reset filteredData if search term is empty
-        } else {
-            const filtered = data.filter(event =>
+        // Apply search term
+        if (searchTerm.trim() !== '') {
+            filtered = filtered.filter(event =>
                 event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 event.eventLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 event.eventCategory.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            setFilteredData(filtered); // Update filteredData based on search term
         }
-    }, [searchTerm, data]);
 
-    // Function to clear all filters and search term
+        setFilteredData(filtered);
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
     const clearFilters = () => {
-        setFilters({ // Reset filters state
+        setFilters({
             category: '',
             startDate: '',
             endDate: '',
@@ -104,10 +90,9 @@ const EventDetails = () => {
             minPrice: '',
             maxPrice: ''
         });
-        setSearchTerm(''); // Reset search term state
+        setSearchTerm('');
     };
 
-    // Function to format time from array [hours, minutes] to HH:MM format
     const formatTime = (timeArray) => {
         try {
             if (!Array.isArray(timeArray) || timeArray.length !== 2) {
@@ -124,11 +109,11 @@ const EventDetails = () => {
         }
     };
 
-    // Function to convert base64 image string to URL
     const base64ToImageUrl = (base64String, mimeType) => {
-        if (!base64String) return ''; // Handle case where base64String is not available
-        // Construct the data URL
-        return `data:${mimeType};base64,${base64String}`;
+        if (!base64String) return '';
+        const imageUrl = `data:${mimeType};base64,${base64String}`;
+        console.log('Constructed Image URL:', imageUrl);
+        return imageUrl;
     };
 
     return (
@@ -138,68 +123,78 @@ const EventDetails = () => {
                     {error && <div className="alert alert-danger">{error}</div>}
                     {!data.length && !error && <div className="alert alert-info">Loading...</div>}
 
-                    <div className='mb-3'>
+                    <div className='mb-3 d-flex justify-content-between align-items-center'>
                         <h1 className='text-primary'>Event Finder</h1>
-                        <div className='mb-3'>
-                        <Link to="/about" className="btn btn-primary me-2">About</Link>
-                        <Link to="/contact" className="btn btn-secondary">Contact</Link>
-                    </div>
-                        <input
-                            type='text'
-                            className='form-control'
-                            placeholder='Search events...'
-                            value={searchTerm}
-                            onChange={handleSearch}
-                        />
+                        <div>
+                            <Link to="/login" className='btn btn-outline-primary me-2'>Login</Link>
+                            <Link to="/register" className='btn btn-outline-primary me-2'>Register</Link>
+                            <Link to="/about" className='btn btn-outline-primary me-2'>About</Link>
+                            <Link to="/contact" className='btn btn-outline-primary'>Contact</Link>
+                        </div>
                     </div>
 
+                    <input
+                        type='text'
+                        className='form-control mb-3'
+                        placeholder='Search events...'
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+
                     <div className='row mb-3'>
-                        <div className='col-md-3'>
+                        <div className='col-md-2'>
+                            <input
+                                type='text'
+                                className='form-control form-control-sm'
+                                placeholder='Category'
+                                value={filters.category}
+                                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
                             <input
                                 type='date'
-                                className='form-control'
+                                className='form-control form-control-sm'
                                 placeholder='Start Date'
                                 value={filters.startDate}
                                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
+                        <div className='col-md-2'>
                             <input
                                 type='date'
-                                className='form-control'
+                                className='form-control form-control-sm'
                                 placeholder='End Date'
                                 value={filters.endDate}
                                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
+                        <div className='col-md-2'>
                             <input
                                 type='text'
-                                className='form-control'
+                                className='form-control form-control-sm'
                                 placeholder='Location'
                                 value={filters.location}
                                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
-                            <div className='input-group'>
-                                <span className='input-group-text'>$</span>
-                                <input
-                                    type='number'
-                                    className='form-control'
-                                    placeholder='Min Price'
-                                    value={filters.minPrice}
-                                    onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-                                />
-                                <span className='input-group-text'>to $</span>
-                                <input
-                                    type='number'
-                                    className='form-control'
-                                    placeholder='Max Price'
-                                    value={filters.maxPrice}
-                                    onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-                                />
-                            </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control form-control-sm'
+                                placeholder='Min Price'
+                                value={filters.minPrice}
+                                onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control form-control-sm'
+                                placeholder='Max Price'
+                                value={filters.maxPrice}
+                                onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                            />
                         </div>
                     </div>
 
