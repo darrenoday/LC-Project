@@ -1,10 +1,8 @@
 package com.example.LCProjectAPI;
 
-import com.example.LCProjectAPI.Controllers.AuthController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -15,40 +13,32 @@ import java.util.List;
 @Component
 public class AuthenticationFilter implements HandlerInterceptor {
 
-    @Autowired
-    private AuthController authController;
-
-    private static final List<String> whitelist = Arrays.asList("/auth/register", "/auth/login", "/auth/logout", "/css");
+    private static final List<String> whitelist = Arrays.asList(
+            "/auth/register", "/auth/login", "/auth/logout", "/css", "/api/events","/api/admin/events","/contact"
+    );
 
     private static boolean isWhitelisted(String path) {
-        for (String pathRoot : whitelist) {
-            if (path.equals(pathRoot) || path.startsWith(pathRoot + "/")) {
-                return true;
-            }
-        }
-        return false;
+        return whitelist.stream().anyMatch(path::startsWith);
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response,
-                             Object handler) throws IOException {
-
-        // Don't require sign-in for whitelisted pages
-        if (isWhitelisted(request.getRequestURI())) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+        String requestURI = request.getRequestURI();
+        if (isWhitelisted(requestURI)) {
             return true;
         }
 
-        HttpSession session = request.getSession(false); // false means do not create new session if none exists
-
-        // Check if session contains a valid user
+        HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
             return true;
         }
 
-        // User is not authenticated, send unauthorized response
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("Unauthorized");
+        try {
+            response.getWriter().write("Unauthorized");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         response.getWriter().flush();
         return false;
     }

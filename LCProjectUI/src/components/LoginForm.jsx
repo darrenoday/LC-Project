@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import '../styles/LoginForm.css';
 
 const LoginForm = () => {
   const [form, setForm] = useState({ username: '', password: '' });

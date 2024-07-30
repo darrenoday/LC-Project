@@ -1,4 +1,5 @@
 package com.example.LCProjectAPI.Controllers;
+
 import com.example.LCProjectAPI.Models.DTO.LoginFormDTO;
 import com.example.LCProjectAPI.Models.DTO.RegistrationFormDTO;
 import com.example.LCProjectAPI.Models.User;
@@ -32,31 +33,25 @@ public class AuthController {
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationFormDTO registrationForm, HttpSession session) {
-        // Check if passwords match
         if (!registrationForm.getPassword().equals(registrationForm.getVerifyPassword())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords do not match.");
+            return ResponseEntity.badRequest().body("Passwords do not match.");
         }
 
-        // Check if username already exists
         if (userRepository.findByUsername(registrationForm.getUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists.");
+            return ResponseEntity.badRequest().body("Username already exists.");
         }
 
-        // Create new user
         User user = new User();
         user.setUsername(registrationForm.getUsername());
         user.setPassword(passwordEncoder.encode(registrationForm.getPassword()));
 
-        // Save user to database
         userRepository.save(user);
-
-        // Set user in session
         session.setAttribute("user", user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
@@ -64,20 +59,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@Valid @RequestBody LoginFormDTO loginForm, HttpSession session) {
-        // Find user by username
         User user = userRepository.findByUsername(loginForm.getUsername());
 
-        // Check if user exists and password matches
         if (user != null && passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
-            // Set user in session
             session.setAttribute("user", user);
-
-            // Check if username is 'admin' and return appropriate message
-            if ("admin".equals(user.getUsername())) {
-                return ResponseEntity.ok("admin");
-            } else {
-                return ResponseEntity.ok("User logged in successfully.");
-            }
+            return "admin".equals(user.getUsername()) ? ResponseEntity.ok("admin") : ResponseEntity.ok("User logged in successfully.");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");
         }
@@ -85,20 +71,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logoutUser(HttpSession session) {
-        session.invalidate(); // Invalidate session
+        session.invalidate();
         return ResponseEntity.ok("Logged out successfully.");
     }
 }
-
-//User Endpoint (GET):
-//
-//URL: http://localhost:8080/user
-//Method: GET
-//Register Endpoint (POST):
-//
-//URL: http://localhost:8080/register
-//Method: POST
-//Login Endpoint (POST):
-//
-//URL: http://localhost:8080/login
-//Method: POST
