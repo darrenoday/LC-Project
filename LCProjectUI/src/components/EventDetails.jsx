@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
@@ -18,22 +18,46 @@ const EventDetails = () => {
     });
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/events');
+                const eventData = response.data;
 
-    const fetchData = () => {
-        axios.get('http://localhost:8080/api/events')
-            .then(res => {
-                console.log('Fetched data:', res.data);
-                setData(res.data);
-                setFilteredData(res.data);
+                const eventWithImageUrls = await Promise.all(eventData.map(async (event) => {
+                    try {
+                        if (event.imageId) {
+                            const imgResponse = await axios.get(`http://localhost:8080/api/images/${event.imageId}`, { responseType: 'arraybuffer' });
+                            const imgBlob = new Blob([imgResponse.data], { type: imgResponse.headers['content-type'] });
+                            const imageUrl = URL.createObjectURL(imgBlob);
+                            return { ...event, imageUrl };
+                        }
+                        return { ...event, imageUrl: 'https://via.placeholder.com/150' };
+                    } catch (imgErr) {
+                        console.error('Error fetching individual image:', imgErr);
+                        return { ...event, imageUrl: 'https://via.placeholder.com/150' };
+                    }
+                }));
+
+                setData(eventWithImageUrls);
+                setFilteredData(eventWithImageUrls);
                 setError(null);
-            })
-            .catch(err => {
-                console.error('Error fetching data:', err);
-                setError('Error fetching data. Please try again later.');
+            } catch (err) {
+                console.error('Error fetching events:', err.response ? err.response.data : err.message);
+                setError('Error fetching events');
+            }
+        };
+
+        fetchData();
+
+        // Cleanup image URLs on component unmount
+        return () => {
+            data.forEach(event => {
+                if (event.imageUrl) {
+                    URL.revokeObjectURL(event.imageUrl);
+                }
             });
-    };
+        };
+    }, []);
 
     useEffect(() => {
         applyFiltersAndSearch();
@@ -42,7 +66,6 @@ const EventDetails = () => {
     const applyFiltersAndSearch = () => {
         let filtered = [...data];
 
-        // Apply filters
         if (filters.category) {
             filtered = filtered.filter(event => event.eventCategory.toLowerCase() === filters.category.toLowerCase());
         }
@@ -65,7 +88,6 @@ const EventDetails = () => {
             );
         }
 
-        // Apply search term
         if (searchTerm.trim() !== '') {
             filtered = filtered.filter(event =>
                 event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,34 +116,25 @@ const EventDetails = () => {
     };
 
     const formatTime = (timeArray) => {
-        try {
-            if (!Array.isArray(timeArray) || timeArray.length !== 2) {
-                return '';
-            }
-            const [hours, minutes] = timeArray;
-            const time = new Date();
-            time.setHours(hours);
-            time.setMinutes(minutes);
-            return time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        } catch (error) {
-            console.error('Error formatting time:', error);
+        if (!Array.isArray(timeArray) || timeArray.length !== 2) {
             return '';
         }
+        const [hours, minutes] = timeArray;
+        const time = new Date();
+        time.setHours(hours);
+        time.setMinutes(minutes);
+        return time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     };
 
-    const base64ToImageUrl = (base64String, mimeType) => {
-        if (!base64String) return '';
-        const imageUrl = `data:${mimeType};base64,${base64String}`;
-        console.log('Constructed Image URL:', imageUrl);
-        return imageUrl;
-    };
+    if (!data.length && !error) {
+        return <p>Loading...</p>;
+    }
 
     return (
         <div className='container py-5'>
             <div className='card shadow-sm'>
                 <div className='card-body'>
                     {error && <div className="alert alert-danger">{error}</div>}
-                    {!data.length && !error && <div className="alert alert-info">Loading...</div>}
 
                     <div className='mb-3 d-flex justify-content-between align-items-center'>
                         <h1 className='text-primary'>Event Finder</h1>
@@ -203,7 +216,7 @@ const EventDetails = () => {
                             <div key={index} className='col'>
                                 <div className='card'>
                                     <img
-                                        src={base64ToImageUrl(event.eventImage, event.imageMimeType)}
+                                        src={event.imageUrl || 'https://via.placeholder.com/150'}
                                         className='card-img-top'
                                         alt={event.eventName}
                                     />

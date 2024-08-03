@@ -12,11 +12,11 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const response = await axios.post('http://localhost:8080/auth/login', credentials, { withCredentials: true });
-            if (response.data === 'admin') {
-                // If the response indicates admin, you might want to navigate to the admin dashboard here
+            const userRole = response.data; // Adjust based on your response structure
+            if (userRole === 'admin') {
                 setUser({ ...credentials, role: 'admin' });
             } else {
-                setUser(credentials);
+                setUser({ ...credentials, role: 'user' }); // Assign a default role if needed
             }
         } catch (error) {
             console.error('Login failed:', error);

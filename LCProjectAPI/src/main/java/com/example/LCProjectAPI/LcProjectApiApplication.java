@@ -41,11 +41,20 @@ public class LcProjectApiApplication {
 
 			@Override
 			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				// Serve static content from /static directory
+				registry.addResourceHandler("/**")
+						.addResourceLocations("classpath:/static/")
+						.setCachePeriod(3600);
+
+				// Optionally, add a handler for images if you need a specific path
 				registry.addResourceHandler("/images/**")
 						.addResourceLocations("classpath:/static/images/")
-						.addResourceLocations("/favicon.ico")
+						.setCachePeriod(3600);
+
+				// Serve favicon.ico from the static directory
+				registry.addResourceHandler("/favicon.ico")
 						.addResourceLocations("classpath:/static/")
-						.setCachePeriod(3600); // Adjust cache period as needed
+						.setCachePeriod(3600);
 			}
 		};
 	}

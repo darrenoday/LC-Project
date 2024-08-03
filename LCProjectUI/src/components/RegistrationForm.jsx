@@ -36,6 +36,12 @@ const RegistrationForm = () => {
     <div className="container mt-5">
       <div className="card">
         <div className="card-body">
+        <div className="mb-4">
+        <button className="btn btn-secondary me-2" onClick={() => navigate('/login')}>Login</button>
+        <button className="btn btn-secondary me-2" onClick={() => navigate(-1)}>Back</button>
+        <button className="btn btn-secondary me-2" onClick={() => navigate('/about')}>About</button>
+        <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Contact</button>
+      </div>
           <h2 className="card-title">Registration Form</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">

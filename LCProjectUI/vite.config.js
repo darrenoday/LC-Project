@@ -4,10 +4,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173, // Ensure this matches your frontend port
-    cors: true,
-    hmr: {
-      overlay: true, // Set to false if needed
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // Backend server URL
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''), // Adjust if needed
+      },
     },
   },
 });

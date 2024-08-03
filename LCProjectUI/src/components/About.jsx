@@ -1,8 +1,15 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const About = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleLogout = () => {
+    // Implement logout logic here (e.g., clearing auth tokens)
+    navigate('/login'); // Redirect to login page
+  };
+
   return (
     <Container className="mt-5">
       <Row className="justify-content-center">
@@ -10,7 +17,13 @@ const About = () => {
           <Card>
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <Link to="/" className="btn btn-primary">Home</Link>
+                <Button variant="secondary" onClick={() => navigate(-1)}>Back</Button>
+                <div>
+                  <Link to="/" className="btn btn-primary me-2">Home</Link>
+                  <Link to="/contact" className="btn btn-info me-2">Contact</Link>
+                  <Link to="/create-event" className="btn btn-success me-2">Create Event</Link>
+                  <Button variant="danger" onClick={handleLogout}>Logout</Button>
+                </div>
               </div>
               <Card.Title>About the Local Event Finder</Card.Title>
               <Card.Subtitle className="mb-3 text-muted">Meet *Celebrity Name*</Card.Subtitle>

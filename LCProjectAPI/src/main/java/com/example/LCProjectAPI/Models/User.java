@@ -1,6 +1,5 @@
 package com.example.LCProjectAPI.Models;
 
-import com.example.LCProjectAPI.Models.AbstractEntity;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +12,8 @@ const Contact = () => {
   });
   const [responseMessage, setResponseMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +44,11 @@ const Contact = () => {
       });
   };
 
+  const handleLogout = () => {
+    // Implement logout logic here (e.g., clearing auth tokens)
+    navigate('/login'); // Redirect to login page
+  };
+
   return (
     <Container className="mt-5">
       <Row className="justify-content-center">
@@ -50,8 +56,12 @@ const Contact = () => {
           <Card>
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <Link to="/" className="btn btn-primary">Home</Link>
-                <h1>Contact Us</h1>
+                <Button variant="primary" onClick={() => navigate('/')}>Home</Button>
+                <Button variant="secondary" onClick={() => navigate('/about')}>About</Button>
+                <Button variant="success" onClick={() => navigate('/create-event')}>Create Event</Button>
+                <Button variant="danger" onClick={handleLogout}>Logout</Button>
+                <Button variant="outline-secondary" onClick={() => navigate(-1)}>Back</Button> {/* Back Button */}
+                <h1 className="ms-3">Contact Us</h1>
               </div>
               <Card.Text>
                 We love hearing from you! Whether you have questions, suggestions, or just want to share your event experiences, feel free to reach out to us using the form below. Our team is here to assist you and ensure you have the best possible experience with Local Event Finder.
