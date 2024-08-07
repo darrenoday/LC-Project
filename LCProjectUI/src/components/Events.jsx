@@ -79,8 +79,8 @@ const Events = () => {
 
             if (filters.minPrice && filters.maxPrice) {
                 filtered = filtered.filter(event =>
-                    event.eventPrice >= parseFloat(filters.minPrice) &&
-                    event.eventPrice <= parseFloat(filters.maxPrice)
+                    parseFloat(event.eventPrice) >= parseFloat(filters.minPrice) &&
+                    parseFloat(event.eventPrice) <= parseFloat(filters.maxPrice)
                 );
             }
 
@@ -244,7 +244,11 @@ const Events = () => {
                                         <p className='card-text'><strong>Location:</strong> {event.eventLocation}</p>
                                         <p className='card-text'><strong>Description:</strong> {event.description}</p>
                                         <p className='card-text'><strong>Category:</strong> {event.eventCategory}</p>
-                                        <p className='card-text'><strong>Price:</strong> ${event.eventPrice.toFixed(2)}</p>
+                                        <p className='card-text'>
+                                            <strong>Price:</strong> {
+                                                isNaN(event.eventPrice) ? 'N/A' : `$${parseFloat(event.eventPrice).toFixed(2)}`
+                                            }
+                                        </p>
                                         <div className='d-flex'>
                                             <button className='btn btn-warning me-2' onClick={() => handleAddToCart(event.id)}>Add to Cart</button>
                                             <button className='btn btn-info me-2' onClick={() => handleAddToFavorites(event.id)}>Add to Favorites</button>

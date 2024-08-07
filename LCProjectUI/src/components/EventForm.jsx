@@ -35,13 +35,19 @@ const EventForm = () => {
     e.preventDefault();
 
     const data = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (key === 'file' && formData[key]) {
-        data.append(key, formData[key]);
-      } else {
-        data.append(key, formData[key]);
-      }
-    });
+    data.append('event', new Blob([JSON.stringify({
+      eventName: formData.eventName,
+      description: formData.description,
+      eventDate: formData.eventDate,
+      eventTime: formData.eventTime,
+      eventLocation: formData.eventLocation,
+      eventPrice: formData.eventPrice,
+      eventCategory: formData.eventCategory,
+      zipCode: formData.zipCode
+    })], { type: "application/json" }));
+    if (formData.file) {
+      data.append('file', formData.file);
+    }
 
     try {
       const response = await axios.post('http://localhost:8080/api/events', data, {

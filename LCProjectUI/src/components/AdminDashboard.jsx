@@ -11,19 +11,20 @@ const AdminDashboard = () => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
 
-  const navigate = useNavigate(); // Use useNavigate hook for navigation
+  const navigate = useNavigate();
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/admin/events');
+      setEvents(response.data);
+      setFilteredEvents(response.data);
+    } catch (error) {
+      console.error('Error fetching data', error);
+      // Optionally, redirect or show a message if unauthorized
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/admin/events');
-        setEvents(response.data);
-        setFilteredEvents(response.data);
-      } catch (error) {
-        console.error('Error fetching data', error);
-        // Optionally, redirect or show a message if unauthorized
-      }
-    };
     fetchData();
   }, []);
 
@@ -124,7 +125,7 @@ const AdminDashboard = () => {
                   <td>{new Date(event.eventDate).toLocaleDateString()}</td>
                   <td>{formatTime(event.eventTime)}</td>
                   <td>{event.eventLocation}</td>
-                  <td>${event.eventPrice.toFixed(2)}</td>
+                  <td>${isNaN(event.eventPrice) ? 'N/A' : parseFloat(event.eventPrice).toFixed(2)}</td>
                   <td>{event.approvalStatus}</td>
                   <td>
                     <div className='d-flex'>

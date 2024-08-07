@@ -3,13 +3,13 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 const AdminRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/events" />;
+  if (loading) {
+    return <div>Loading...</div>; // or any loading indicator you prefer
   }
 
-  return children;
+  return user && user.role === 'admin' ? children : <Navigate to="/events" />;
 };
 
 export default AdminRoute;

@@ -1,60 +1,37 @@
 package com.example.LCProjectAPI.Models;
 
+
 import jakarta.persistence.*;
-
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.time.LocalTime;
-import java.util.Date;
 
 @Entity
 public class Event {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Please Enter Event Name.")
     private String eventName;
-
-    @NotNull(message = "Please Enter Event Date.")
-    private Date eventDate;
-
-    @NotNull(message = "Please Enter Event Time.")
-    private LocalTime eventTime;
-
-    @NotBlank(message = "Event location must not be empty")
-    private String eventLocation;
-
-    @NotBlank(message = "Please provide Event Description.")
-    @Size(min = 5, message = "Description must be at least 5 characters.")
     private String description;
-
-    @NotBlank
+    private String eventDate;
+    private String eventTime;
+    private String eventLocation;
+    private String eventPrice;
     private String eventCategory;
+    private String zipCode;
+    private String imagePath;
 
-    @NotNull
-    private double eventPrice;
-
-
-    // Large Object Byte for storing binary data like images in database.
-    // 1 MB size limit
-    // private String eventImage;   // Stores image data in byte array format.
-
-    @Column(columnDefinition = "LONGTEXT")
-    private String eventImage;
-    private String imageMimeType;  // Stores MIME type of image. image/jpeg , png . gif etc.
-
-    public String approvalStatus = "Pending";
+    private String approvalStatus;
 
 
-    public Event() {
-    }
 
+
+
+// Getters and setters
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEventName() {
@@ -65,19 +42,27 @@ public class Event {
         this.eventName = eventName;
     }
 
-    public Date getEventDate() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(Date eventDate) {
+    public void setEventDate(String eventDate) {
         this.eventDate = eventDate;
     }
 
-    public LocalTime getEventTime() {
+    public String getEventTime() {
         return eventTime;
     }
 
-    public void setEventTime(LocalTime eventTime) {
+    public void setEventTime(String eventTime) {
         this.eventTime = eventTime;
     }
 
@@ -89,12 +74,12 @@ public class Event {
         this.eventLocation = eventLocation;
     }
 
-    public String getDescription() {
-        return description;
+    public String getEventPrice() {
+        return eventPrice;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setEventPrice(String eventPrice) {
+        this.eventPrice = eventPrice;
     }
 
     public String getEventCategory() {
@@ -105,31 +90,21 @@ public class Event {
         this.eventCategory = eventCategory;
     }
 
-    public double getEventPrice() {
-        return eventPrice;
+    public String getZipCode() {
+        return zipCode;
     }
 
-    public void setEventPrice(double eventPrice) {
-        this.eventPrice = eventPrice;
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
     }
 
-
-    public String getEventImage() {
-        return eventImage;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setEventImage(String eventImage) {
-        this.eventImage = eventImage;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
-
-    public String getImageMimeType() {
-        return imageMimeType;
-    }
-
-    public void setImageMimeType(String imageMimeType) {
-        this.imageMimeType = imageMimeType;
-    }
-
 
     public String getApprovalStatus() {
         return approvalStatus;
@@ -139,4 +114,15 @@ public class Event {
         this.approvalStatus = approvalStatus;
     }
 
-}
+    public Event() {
+        this.approvalStatus = "pending"; // Set default value in the constructor
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.approvalStatus == null) {
+            this.approvalStatus = "pending"; // Ensure default value before saving to database
+        }
+    }
+};
+

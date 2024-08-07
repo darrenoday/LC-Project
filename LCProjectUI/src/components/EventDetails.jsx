@@ -83,8 +83,8 @@ const EventDetails = () => {
 
         if (filters.minPrice && filters.maxPrice) {
             filtered = filtered.filter(event =>
-                event.eventPrice >= parseFloat(filters.minPrice) &&
-                event.eventPrice <= parseFloat(filters.maxPrice)
+                parseFloat(event.eventPrice) >= parseFloat(filters.minPrice) &&
+                parseFloat(event.eventPrice) <= parseFloat(filters.maxPrice)
             );
         }
 
@@ -212,27 +212,35 @@ const EventDetails = () => {
                     </div>
 
                     <div className='row row-cols-1 row-cols-md-2 g-4'>
-                        {filteredData.map((event, index) => (
-                            <div key={index} className='col'>
-                                <div className='card'>
-                                    <img
-                                        src={event.imageUrl || 'https://via.placeholder.com/150'}
-                                        className='card-img-top'
-                                        alt={event.eventName}
-                                    />
-                                    <div className='card-body'>
-                                        <h5 className='card-title'>{event.eventName}</h5>
-                                        <p className='card-text'><strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}</p>
-                                        <p className='card-text'><strong>Time:</strong> {formatTime(event.eventTime)}</p>
-                                        <p className='card-text'><strong>Location:</strong> {event.eventLocation}</p>
-                                        <p className='card-text'><strong>Description:</strong> {event.description}</p>
-                                        <p className='card-text'><strong>Category:</strong> {event.eventCategory}</p>
-                                        <p className='card-text'><strong>Price:</strong> ${event.eventPrice.toFixed(2)}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+  {filteredData.map((event, index) => {
+    const imageUrl = event.imagePath ? event.imagePath : 'https://via.placeholder.com/150';
+
+    return (
+      <div key={index} className='col'>
+        <div className='card'>
+          <img
+            src={imageUrl}
+            className='card-img-top'
+            alt={event.eventName}
+          />
+          <div className='card-body'>
+            <h5 className='card-title'>{event.eventName}</h5>
+            <p className='card-text'><strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}</p>
+            <p className='card-text'><strong>Time:</strong> {formatTime(event.eventTime)}</p>
+            <p className='card-text'><strong>Location:</strong> {event.eventLocation}</p>
+            <p className='card-text'><strong>Description:</strong> {event.description}</p>
+            <p className='card-text'><strong>Category:</strong> {event.eventCategory}</p>
+            <p className='card-text'><strong>Price:</strong> {
+              isNaN(event.eventPrice) ? 'N/A' : `$${parseFloat(event.eventPrice).toFixed(2)}`
+            }</p>
+            <p className='card-text'><strong>Approval Status:</strong> {event.approvalStatus}</p>
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
                     <div className='mt-3'>
                         <button className='btn btn-secondary me-2' onClick={clearFilters}>Clear Filters</button>

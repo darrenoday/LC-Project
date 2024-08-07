@@ -19,11 +19,8 @@ const LoginForm = () => {
     try {
       await login(form);  // Call login function from useAuth
       const user = JSON.parse(localStorage.getItem('user'));
-      if (user?.role === 'admin') {
-        navigate('/admin');  // Redirect to admin dashboard if user is admin
-      } else {
-        navigate('/events');  // Redirect to events page for normal users
-      }
+      
+        navigate('/events'); 
     } catch (error) {
       setMessage(error.message || 'An error occurred. Please try again.');  // Handle login errors
     }
